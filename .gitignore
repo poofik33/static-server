@@ -1,0 +1,9 @@
+#clion dir
+cmake*/
+.idea
+
+#lecture pdf
+*.pdf
+
+#test-suite
+http-test-suite
