@@ -13,7 +13,11 @@ std::string readAll(const std::string &path)
 	if (fd < 0) throw file_exception(errorStringCode("Error: opening file " + path, errno));
 
 	struct stat statBuf;
-	if (stat(path.c_str(), &statBuf) < 0) throw file_exception(errorStringCode("Error: reading stat of file " + path, errno));
+	if (stat(path.c_str(), &statBuf) < 0)
+	{
+		::close(fd);
+		throw file_exception(errorStringCode("Error: reading stat of file " + path, errno));
+	}
 
 	std::string result;
 	result.reserve(chunk * statBuf.st_size);
@@ -22,7 +26,11 @@ std::string readAll(const std::string &path)
 	while(true)
 	{
 		auto i = ::read(fd, buf, chunk);
-		if (i == -1) throw file_exception(errorStringCode("Error: reading file " + path, errno));
+		if (i == -1)
+		{
+			::close(fd);
+			throw file_exception(errorStringCode("Error: reading file " + path, errno));
+		}
 		if (i == 0) break;
 		result.append(buf, i);
 	}
