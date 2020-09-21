@@ -9,7 +9,7 @@ std::string readAll(const std::string &path)
 {
 	const size_t chunk = 1024;
 
-	int fd = ::open(path.c_str(), O_NONBLOCK|O_RDONLY);
+	int fd = ::open(path.c_str(), O_RDONLY);
 	if (fd < 0) throw file_exception(errorStringCode("Error: opening file " + path, errno));
 
 	struct stat statBuf;
@@ -20,7 +20,7 @@ std::string readAll(const std::string &path)
 	}
 
 	std::string result;
-	result.reserve(chunk * statBuf.st_size);
+	result.reserve(statBuf.st_size);
 
 	char buf[chunk];
 	while(true)
@@ -37,4 +37,15 @@ std::string readAll(const std::string &path)
 
 	::close(fd);
 	return result;
+}
+
+size_t readSize(const std::string &path)
+{
+	struct stat statBuf;
+	if (stat(path.c_str(), &statBuf) < 0)
+	{
+		throw file_exception(errorStringCode("Error: reading stat of file " + path, errno));
+	}
+
+	return statBuf.st_size;
 }

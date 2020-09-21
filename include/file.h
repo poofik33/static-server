@@ -15,6 +15,7 @@ public:
 };
 
 std::string readAll(const std::string &path);
+size_t readSize(const std::string &path);
 
 inline bool exists(const std::string &path) { return std::filesystem::exists(path); }
 

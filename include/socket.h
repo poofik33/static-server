@@ -40,6 +40,6 @@ private:
 	int socketDescriptor = -1;
 };
 
-Socket createServerSocket(uint32_t port, uint32_t listen_queue_length) noexcept(false);
+Socket createServerSocket(uint32_t port, uint32_t listenQueueSize) noexcept(false);
 
 #endif //STATICSERVER_SOCKET_H

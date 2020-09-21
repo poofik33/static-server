@@ -44,7 +44,7 @@ void Socket::setRecvTimeout(uint32_t sec, uint32_t usec)
 
 std::string Socket::recv(const std::string &stop) const
 {
-	const size_t chunk = 1024;
+	const size_t chunk = 128;
 	std::string ret;
 	ret.reserve(chunk);
 	char buf[chunk];
@@ -71,15 +71,15 @@ std::string Socket::recv(const std::string &stop) const
 	return ret;
 }
 
-Socket createServerSocket(uint32_t port, uint32_t listen_queue_length) noexcept(false)
+Socket createServerSocket(uint32_t port, uint32_t listenQueueSize) noexcept(false)
 {
-	std::cout << "Starting server...\n";
+	std::cout << "Starting serverName...\n";
 	auto sockfd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sockfd <= 0)
 	{
 		throw Socket::socket_exception(errorStringCode("Error: creating socket", errno));
 	}
-	std::cout << "Create socket with ds: " << sockfd << "\n";
+//	std::cout << "Create socket with ds: " << sockfd << "\n";
 	Socket s{sockfd};
 
 	s.setReuseAddr();
@@ -92,7 +92,7 @@ Socket createServerSocket(uint32_t port, uint32_t listen_queue_length) noexcept(
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(port);
 
-	std::cout << "Binding socket " << sockfd << " on port:" << port << '\n';
+//	std::cout << "Binding socket " << sockfd << " on port:" << port << '\n';
 	if (::bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 	{
 		::close(sockfd);
@@ -100,7 +100,7 @@ Socket createServerSocket(uint32_t port, uint32_t listen_queue_length) noexcept(
 	}
 
 	std::cout << "Start listening by socket " << sockfd << " on port:" << port << '\n';
-	if (::listen(sockfd, listen_queue_length) < 0)
+	if (::listen(sockfd, listenQueueSize) < 0)
 	{
 		::close(sockfd);
 		throw Socket::socket_exception(errorStringCode("Error: socket listen", errno));
@@ -112,7 +112,7 @@ Socket createServerSocket(uint32_t port, uint32_t listen_queue_length) noexcept(
 void Socket::send(const std::string &str) const
 {
 	size_t left = str.size();
-	ssize_t  sent = 0;
+	ssize_t sent = 0;
 	while(left > 0)
 	{
 		sent = ::send(socketDescriptor, str.data() + sent, str.size() - sent, 0);

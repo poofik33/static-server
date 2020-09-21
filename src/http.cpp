@@ -58,7 +58,7 @@ std::string HTTPResponse::toString() const
 	result += std::to_string(static_cast<int>(code)) + " " + ResponseCodeTranscription.at(code);
 	result += "\r\n";
 
-	result += "Server: " + server + "\r\n";
+	result += "Server: " + serverName + "\r\n";
 
 	auto t = std::time(nullptr);
 	std::string date;
@@ -141,6 +141,12 @@ HTTPResponse prepareResponse(const HTTPRequest &req)
 
 	auto ext = req.path.substr(req.path.find_last_of('.'));
 	resp.mimeType = fileExtToMimeType(ext);
+
+	if (req.method == HTTPMethod::MethodCode::HEAD)
+	{
+		resp.contentLength = readSize(req.path);
+		return resp;
+	}
 
 	resp.body = readAll(req.path);
 	resp.contentLength = resp.body.size();

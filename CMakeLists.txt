@@ -11,6 +11,7 @@ set (SOURCE
         src/socket.cpp
         src/http.cpp
         src/file.cpp
+        src/thread_pool.cpp
         )
 
 add_executable(StaticServer main.cpp ${SOURCE})

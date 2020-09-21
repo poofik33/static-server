@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 const std::string protocol = "HTTP/1.1";
-const std::string server = "A_Postnikov_Technopark_Server 0.1";
+const std::string serverName = "A_Postnikov_Technopark_Server 0.2";
 
 const std::string httpStop = "\r\n\r\n";
 
