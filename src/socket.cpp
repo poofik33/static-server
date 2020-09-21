@@ -7,7 +7,7 @@
 void Socket::setReuseAddr()
 {
 	int yes = 1;
-	std::cout << "Setting reuse address for socket:" << socketDescriptor << "\n";
+
 	if (setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
 	{
 		::close(socketDescriptor);
@@ -79,7 +79,7 @@ Socket createServerSocket(uint32_t port, uint32_t listenQueueSize) noexcept(fals
 	{
 		throw Socket::socket_exception(errorStringCode("Error: creating socket", errno));
 	}
-//	std::cout << "Create socket with ds: " << sockfd << "\n";
+
 	Socket s{sockfd};
 
 	s.setReuseAddr();
@@ -92,7 +92,6 @@ Socket createServerSocket(uint32_t port, uint32_t listenQueueSize) noexcept(fals
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(port);
 
-//	std::cout << "Binding socket " << sockfd << " on port:" << port << '\n';
 	if (::bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 	{
 		::close(sockfd);

@@ -23,8 +23,10 @@ public:
 		void read();
 		void send();
 
+		void clientWork();
+
 		Client(Socket s, ThreadPool *p, std::string rp) :
-		s(std::move(s)), pool(p), rootPath(std::move(rp)) {}
+		s(std::move(s)), pool(p), rootPath(std::move(rp)), done(false) {}
 	};
 
 	Server(uint32_t port, uint32_t listenQueueSize, int countThreads, std::string p) :
@@ -93,11 +95,27 @@ void Server::main()
 
 		auto f = std::bind(&Server::Client::receive, c);
 		pool.pushJob(f);
-		if (clients.size() > 100)
+		if (clients.size() > 16)
 		{
 			eraseDone();
 		}
 	}
+}
+
+void Server::Client::clientWork()
+{
+	s.setRecvTimeout(1, 0);
+
+	auto msg = s.recv(httpStop);
+
+	request = parseRequest(msg, rootPath);
+	response = prepareResponse(request);
+	s.send(response.toString());
+
+	if (request.method != HTTPMethod::MethodCode::HEAD) s.send(response.body);
+
+	s.close();
+	done = true;
 }
 
 void Server::eraseDone()
@@ -115,11 +133,11 @@ void Server::eraseDone()
 
 int main(int argc, char **argv)
 {
-	std::cout << "Number of available threads: "<< std::thread::hardware_concurrency() << '\n';
+	std::cout << "Number of available threads: " << std::thread::hardware_concurrency() << '\n';
 
-	auto threadCount = std::min(std::thread::hardware_concurrency(), unsigned(4));
+	auto threadCount = std::max(std::thread::hardware_concurrency(), unsigned(4));
 
-	auto server = Server(80, 20, threadCount, rootPath);
+	auto server = Server(80, 1000, threadCount, rootPath);
 	server.main();
 
 	return 0;

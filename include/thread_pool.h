@@ -26,7 +26,7 @@ private:
 	std::deque<jobType> jobQueue;
 	std::vector<std::thread> pool;
 
-	std::mutex jobMutex;
+	std::mutex jobMutex, outMutex;
 	std::condition_variable cond;
 	bool terminate = false;
 };

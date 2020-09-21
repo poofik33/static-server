@@ -47,7 +47,8 @@ void ThreadPool::threadInfiniteCycle()
 		}
 		catch(const std::runtime_error &err)
 		{
-			std::cerr << "[" << std::this_thread::get_id() << "] " << err.what();
+			std::unique_lock lock(outMutex);
+			std::cerr << "[" << std::this_thread::get_id() << "] " << err.what() << "\n";
 		}
 	}
 }

@@ -35,7 +35,17 @@ public:
 	void send(const std::string &str) const;
 	void setReuseAddr();
 
-	void close() { if (socketDescriptor > 0) ::close(socketDescriptor); socketDescriptor = 0; }
+	void close()
+	{
+		if (socketDescriptor > 0)
+		{
+			::fsync(socketDescriptor);
+			::close(socketDescriptor);
+		}
+
+		socketDescriptor = 0;
+	}
+
 private:
 	int socketDescriptor = -1;
 };

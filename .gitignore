@@ -6,4 +6,4 @@ cmake*/
 *.pdf
 
 #test-suite
-http-test-suite/**
+/http-test-suite/

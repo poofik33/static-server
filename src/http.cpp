@@ -20,7 +20,7 @@ HTTPRequest parseRequest(const std::string& req, const std::string &rootPath)
 		reqLine = reqLine.substr(pos + 1);
 	}
 
-	if (parts.size() < 3) throw http_exception("Error: wrong format of request line");
+	if (parts.size() < 3) throw http_exception(std::string("Error: wrong format of request line"));
 
 	HTTPRequest result;
 
