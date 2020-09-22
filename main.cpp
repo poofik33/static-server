@@ -1,11 +1,12 @@
+#include "getopt.h"
+
+#include <algorithm>
+#include <filesystem>
+
 #include <thread_pool.h>
 #include <misc.h>
 #include <socket.h>
 #include <http.h>
-
-#include <algorithm>
-
-const std::string rootPath = "/Users/a.postnikov/Documents/Univer/StaticServer/http-test-suite";
 
 class Server
 {
@@ -131,13 +132,51 @@ void Server::eraseDone()
 	clients = std::move(tmp);
 }
 
+//n - number of threads;
+//q - length of listen queue;
+//p - port;
+//d - home directory;
+
 int main(int argc, char **argv)
 {
-	std::cout << "Number of available threads: " << std::thread::hardware_concurrency() << '\n';
+	int opt = 0, arg_num = 0;
 
-	auto threadCount = std::max(std::thread::hardware_concurrency(), unsigned(4));
+	unsigned int numThreads = 0, listenQueueSize = 0, port = 0;
+	std::string homePath = "";
 
-	auto server = Server(80, 1000, threadCount, rootPath);
+	while((opt = getopt(argc, argv, "n:q:p:d:")) != -1)
+	{
+		switch(opt) {
+			case 'n':
+				numThreads = std::atoi(optarg);
+				break;
+			case 'q':
+				listenQueueSize = std::atoi(optarg);
+				break;
+			case 'p':
+				port = std::atoi(optarg);
+				break;
+			case 'd':
+				homePath = optarg;
+				break;
+		}
+		arg_num++;
+	}
+
+	if (numThreads == 0) numThreads = 1;
+
+	if (arg_num < 4 || port == 0 || listenQueueSize == 0)
+	{
+		std::cerr << "Wrong params number\n";
+		return EXIT_FAILURE;
+	}
+
+	homePath = std::string(std::filesystem::current_path().string() + "/" + homePath);
+	std::cout << "Home path is " << homePath << "\n";
+
+	auto threadCount = std::min(std::thread::hardware_concurrency(), numThreads);
+
+	auto server = Server(port, listenQueueSize, threadCount, homePath);
 	server.main();
 
 	return 0;
