@@ -94,9 +94,9 @@ void Server::main()
 		auto c = std::make_shared<Server::Client>(std::move(newSock), &pool, rootPath);
 		clients.push_back(c);
 
-		auto f = std::bind(&Server::Client::receive, c);
+		auto f = std::bind(&Server::Client::clientWork, c);
 		pool.pushJob(f);
-		if (clients.size() > 16)
+		if (clients.size() > 128)
 		{
 			eraseDone();
 		}
@@ -113,7 +113,9 @@ void Server::Client::clientWork()
 	response = prepareResponse(request);
 	s.send(response.toString());
 
-	if (request.method != HTTPMethod::MethodCode::HEAD) s.send(response.body);
+	if (request.method != HTTPMethod::MethodCode::HEAD &&
+	response.code == HTTPResponse::ResponseCode::OK)
+		s.sendFile(request.path, response.contentLength);
 
 	s.close();
 	done = true;

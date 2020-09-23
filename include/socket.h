@@ -33,6 +33,7 @@ public:
 	void setRecvTimeout(uint32_t sec, uint32_t usec);
 	std::string recv(const std::string &stop) const;
 	void send(const std::string &str) const;
+	void sendFile(const std::string &path, size_t count) const;
 	void setReuseAddr();
 
 	void close()

@@ -1,6 +1,11 @@
 #include <socket.h>
 
+#ifdef __APPLE__
 #include <sys/socket.h>
+#else
+#include <sys/sendfile.h>
+#endif
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <misc.h>
 
@@ -118,4 +123,18 @@ void Socket::send(const std::string &str) const
 		if (sent < -1) throw socket_exception(errorStringCode("Error: sending data", errno));
 		left -= sent;
 	}
+}
+
+void Socket::sendFile(const std::string &path, size_t count) const
+{
+	int fd = ::open(path.c_str(), O_RDONLY);
+	if (fd < 0) throw socket_exception(errorStringCode("Error: opening file " + path, errno));
+
+	off_t sent = count;
+#ifdef __APPLE__
+	if (::sendfile(fd, socketDescriptor, 0, &sent, nullptr, 0) < 0) throw socket_exception(errorStringCode("Error: sending file", errno));
+#else
+	if (::sendfile(fd, socketDescriptor, 0, count) < 0) throw socket_exception(errorStringCode("Error: sending file", errno));
+#endif
+	::close(fd);
 }

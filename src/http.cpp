@@ -148,8 +148,7 @@ HTTPResponse prepareResponse(const HTTPRequest &req)
 		return resp;
 	}
 
-	resp.body = readAll(req.path);
-	resp.contentLength = resp.body.size();
+	resp.contentLength = readSize(req.path);
 
 	return resp;
 }
